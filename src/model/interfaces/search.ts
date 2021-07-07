@@ -167,3 +167,12 @@ export interface SearchResultInterface {
     query_urn: string;
     total_results: number;
 }
+
+export interface QueriesSuggessInterface {
+    collection?: Array<{
+        output: string
+        query: string
+    }>;
+    next_href?: string;
+    query_urn?: string;
+}

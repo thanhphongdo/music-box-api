@@ -1,7 +1,7 @@
 import { CloudFunctionBase } from '../../parse/index';
-import { PlayListInterface, RequestPlaylistById, RequestSearch, RequestSearchByUser, RequestTrackById, RequestUserById, TrackInterface, UserInterface } from '../../model';
+import { PlayListInterface, QueriesSuggessInterface, RequestHLS, RequestPlaylistById, RequestSearch, RequestSearchByUser, RequestTrackById, RequestUserById, TrackInterface, UserInterface } from '../../model';
 import { SearchResultInterface } from '../../model';
-import { everything, playlists, albums, users, tracks, tracksByUser, playlistsByUser, albumsByUser, playlistById, userById, trackById } from '../../sound_cloud/search';
+import { everything, playlists, albums, users, tracks, tracksByUser, playlistsByUser, albumsByUser, playlistById, userById, trackById, getHLS, queriesSuggess } from '../../sound_cloud/search';
 
 export class SoundCloudFunction extends CloudFunctionBase {
     constructor() {
@@ -17,6 +17,8 @@ export class SoundCloudFunction extends CloudFunctionBase {
         this.defineCloud(this._searchPlaylistsByUsers);
         this.defineCloud(this._searchAlbumsByUsers);
         this.defineCloud(this._playlistById);
+        this.defineCloud(this._getHLS);
+        this.defineCloud(this._getQueriesSuggess);
     }
 
     @CloudFunctionBase.validateRequestParam(RequestSearch)
@@ -122,6 +124,26 @@ export class SoundCloudFunction extends CloudFunctionBase {
     @CloudFunctionBase.validateRequestParam(RequestSearchByUser)
     async _searchAlbumsByUsers(params: RequestSearchByUser, request: Parse.Cloud.FunctionRequest): Promise<SearchResultInterface> {
         const result = await albumsByUser(params.userId, params.term, params.limit, params.offset).then((data) => {
+            return data;
+        }).catch(err => {
+            return Promise.reject();
+        });
+        return result;
+    }
+
+    @CloudFunctionBase.validateRequestParam(RequestHLS)
+    async _getHLS(params: RequestHLS, request: Parse.Cloud.FunctionRequest): Promise<{ url: string }> {
+        const result = await getHLS(params.url).then((data) => {
+            return data;
+        }).catch(err => {
+            return Promise.reject();
+        });
+        return result;
+    }
+
+    @CloudFunctionBase.validateRequestParam(RequestSearch)
+    async _getQueriesSuggess(params: RequestSearch, request: Parse.Cloud.FunctionRequest): Promise<QueriesSuggessInterface> {
+        const result = await queriesSuggess(params.term, params.limit, params.offset).then((data) => {
             return data;
         }).catch(err => {
             return Promise.reject();

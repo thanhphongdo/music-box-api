@@ -38,3 +38,9 @@ export class RequestUserById extends BaseModel {
     @IsNumber()
     id!: number;
 }
+
+export class RequestHLS extends BaseModel {
+    @IsNotEmpty()
+    @IsString()
+    url!: string;
+}

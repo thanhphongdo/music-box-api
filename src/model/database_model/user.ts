@@ -45,6 +45,22 @@ export class User extends Parse.User {
         this.set('lastName', value);
     }
 
+    get birthDate(): Date {
+        return this.get('birthDate');
+    }
+
+    set birthDate(value: Date) {
+        this.set('birthDate', new Date(value));
+    }
+
+    get sex(): number {
+        return this.get('sex');
+    }
+
+    set sex(value: number) {
+        this.set('sex', value);
+    }
+
     static async saveAllAsync(objects: Array<User>, options?: ParseObject.SaveAllOptions): Promise<Array<User>> {
         return (await Parse.Object.saveAll(objects as any, options) as Array<Parse.Object>).map(user => new User(user.toJSON()));
     }

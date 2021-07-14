@@ -9,13 +9,8 @@ export class UserFunction extends CloudFunctionBase {
 
     @CloudFunctionBase.validateRequestParam(RequestUserSignUp)
     async _signUp(params: RequestUserSignUp, request: Parse.Cloud.FunctionRequest): Promise<User> {
-        const user = new User({
-            email: params.email,
-            username: params.username,
-            password: params.password,
-            firstName: params.firstName,
-            lastName: params.lastName,
-        });
+        params.username = params.email;
+        const user = new User(params);
         return await user.signUp(null, { useMasterKey: true });
     }
 

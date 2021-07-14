@@ -30,6 +30,7 @@
     "axios": "^0.21.1",
     "class-validator": "^0.13.1",
     "express": "^4.17.1",
+    "googleapis": "^81.0.0",
     "kerberos": "~1.1.x",
     "lodash": "^4.17.21",
     "parse": "~3.1.0",

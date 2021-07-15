@@ -9,13 +9,19 @@ if (!appConfig.parseServer && appConfig.parseServer) {
     console.log('Config not found');
 }
 const serverUrl = (appConfig.parseServer.serverURL || '') + appConfig.parseServer.mountPath;
+console.log(JSON.stringify(appConfig.parseServer));
 const api = new ParseServer({
     databaseURI: appConfig.parseServer.databaseURI,
     cloud: __dirname + appConfig.parseServer.cloud,
     appId: appConfig.parseServer.appId,
     masterKey: appConfig.parseServer.masterKey,
     serverURL: serverUrl,
-    liveQuery: appConfig.parseServer.liveQuery
+    liveQuery: appConfig.parseServer.liveQuery,
+    appName: appConfig.parseServer.appName,
+    verifyUserEmails: true,
+    emailVerifyTokenValidityDuration: 2 * 60 * 60,
+    emailAdapter: appConfig.parseServer.emailAdapter,
+    publicServerURL: appConfig.parseServer.publicServerURL
 });
 
 const app: Application = express();
@@ -33,7 +39,9 @@ if (appConfig.dashboardUrl) {
             serverURL: serverUrl,
             appId: appConfig.parseServer.appId,
             masterKey: appConfig.parseServer.masterKey,
-            appName: appConfig.parseServer.appName
+            appName: appConfig.parseServer.appName,
+            emailAdapter: appConfig.parseServer.emailAdapter,
+            publicServerURL: appConfig.parseServer.publicServerURL
         }],
         users: appConfig.dashboardUser
     }, { allowInsecureHTTP: true });

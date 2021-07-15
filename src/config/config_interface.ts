@@ -14,6 +14,16 @@ export interface ConfigInterface {
             classNames: string[];
         },
         maxUploadSize?: string;
+        emailAdapter?: {
+            module: string,
+            options: {
+                port: number,
+                host: string,
+                user: string,
+                password: string,
+                fromAddress: string
+            }
+        }
     };
     dashboardUrl?: string;
     dashboardUser?: Array<{

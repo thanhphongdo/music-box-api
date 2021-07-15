@@ -10,7 +10,18 @@ export var Config: ConfigInterface = {
         databaseURI: 'mongodb+srv://root:root@cluster0.cjzgg.mongodb.net/music_box',
         masterKey: 'masterkey',
         port: 1337,
-        serverURL: 'http://localhost:1337'
+        serverURL: 'http://localhost:1337',
+        publicServerURL: 'http://localhost:1337',
+        emailAdapter: {
+            module: 'parse-smtp-template',
+            options: {
+                port: 587,
+                host: "smtp.gmail.com",
+                user: "email_here@gmail.com",
+                password: "password_here",
+                fromAddress: 'email_here@gmail.com'
+            }
+        }
     },
     dashboardUrl: '/-board',
     addDocs: true,

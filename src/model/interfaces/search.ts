@@ -176,3 +176,22 @@ export interface QueriesSuggessInterface {
     next_href?: string;
     query_urn?: string;
 }
+
+export interface MixedSelectionsResultInterface {
+    collection: Array<{
+        urn: string;
+        query_urn: string;
+        title: string;
+        description: string;
+        tracking_feature_name: string;
+        last_updated: string;
+        style: string;
+        social_proof: string;
+        social_proof_users: string;
+        items: SearchResultInterface;
+        kind: string;
+        id: string;
+    }>;
+    next_href: string;
+    query_urn: string;
+}

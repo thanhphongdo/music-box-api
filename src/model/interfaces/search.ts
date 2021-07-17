@@ -161,8 +161,8 @@ export interface PlayListInterface {
     track_count: number;
 }
 
-export interface SearchResultInterface {
-    collection: Array<TrackInterface | UserInterface | PlayListInterface>;
+export interface SearchResultInterface <T> {
+    collection: Array<T>;
     next_href: string;
     query_urn: string;
     total_results: number;
@@ -188,7 +188,7 @@ export interface MixedSelectionsResultInterface {
         style: string;
         social_proof: string;
         social_proof_users: string;
-        items: SearchResultInterface;
+        items: SearchResultInterface<TrackInterface | UserInterface | PlayListInterface>;
         kind: string;
         id: string;
     }>;

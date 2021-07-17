@@ -44,3 +44,17 @@ export class RequestHLS extends BaseModel {
     @IsString()
     url!: string;
 }
+
+export class RequestSearchByTag extends BaseModel {
+    @IsNotEmpty()
+    @IsString()
+    tag!: string;
+
+    @IsNotEmpty()
+    @IsNumber()
+    limit!: number;
+
+    @IsNotEmpty()
+    @IsNumber()
+    offset!: number;
+}

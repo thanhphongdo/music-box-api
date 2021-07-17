@@ -10,7 +10,8 @@ import {
     RequestTrackById,
     RequestUserById,
     TrackInterface,
-    UserInterface
+    UserInterface,
+    RequestSearchByTag
 } from '../../model';
 import { SearchResultInterface } from '../../model';
 import * as SoundCloud from '../../sound_cloud/search';
@@ -35,7 +36,7 @@ export class SoundCloudFunction extends CloudFunctionBase {
     }
 
     @CloudFunctionBase.validateRequestParam(RequestSearch)
-    async _searchEverything(params: RequestSearch, request: Parse.Cloud.FunctionRequest): Promise<SearchResultInterface> {
+    async _searchEverything(params: RequestSearch, request: Parse.Cloud.FunctionRequest): Promise<SearchResultInterface<TrackInterface | UserInterface | PlayListInterface>> {
         const result = await SoundCloud.everything(params.term, params.limit, params.offset).then((data) => {
             return data;
         }).catch(err => {
@@ -45,7 +46,7 @@ export class SoundCloudFunction extends CloudFunctionBase {
     }
 
     @CloudFunctionBase.validateRequestParam(RequestSearch)
-    async _searchTracks(params: RequestSearch, request: Parse.Cloud.FunctionRequest): Promise<SearchResultInterface> {
+    async _searchTracks(params: RequestSearch, request: Parse.Cloud.FunctionRequest): Promise<SearchResultInterface<TrackInterface>> {
         const result = await SoundCloud.tracks(params.term, params.limit, params.offset).then((data) => {
             return data;
         }).catch(err => {
@@ -65,7 +66,7 @@ export class SoundCloudFunction extends CloudFunctionBase {
     }
 
     @CloudFunctionBase.validateRequestParam(RequestSearch)
-    async _searchPlaylists(params: RequestSearch, request: Parse.Cloud.FunctionRequest): Promise<SearchResultInterface> {
+    async _searchPlaylists(params: RequestSearch, request: Parse.Cloud.FunctionRequest): Promise<SearchResultInterface<PlayListInterface>> {
         const result = await SoundCloud.playlists(params.term, params.limit, params.offset).then((data) => {
             return data;
         }).catch(err => {
@@ -85,7 +86,7 @@ export class SoundCloudFunction extends CloudFunctionBase {
     }
 
     @CloudFunctionBase.validateRequestParam(RequestSearch)
-    async _searchAlbums(params: RequestSearch, request: Parse.Cloud.FunctionRequest): Promise<SearchResultInterface> {
+    async _searchAlbums(params: RequestSearch, request: Parse.Cloud.FunctionRequest): Promise<SearchResultInterface<PlayListInterface>> {
         const result = await SoundCloud.albums(params.term, params.limit, params.offset).then((data) => {
             return data;
         }).catch(err => {
@@ -95,7 +96,7 @@ export class SoundCloudFunction extends CloudFunctionBase {
     }
 
     @CloudFunctionBase.validateRequestParam(RequestSearch)
-    async _searchUsers(params: RequestSearch, request: Parse.Cloud.FunctionRequest): Promise<SearchResultInterface> {
+    async _searchUsers(params: RequestSearch, request: Parse.Cloud.FunctionRequest): Promise<SearchResultInterface<UserInterface>> {
         const result = await SoundCloud.users(params.term, params.limit, params.offset).then((data) => {
             return data;
         }).catch(err => {
@@ -115,7 +116,7 @@ export class SoundCloudFunction extends CloudFunctionBase {
     }
 
     @CloudFunctionBase.validateRequestParam(RequestSearchByUser)
-    async _searchTracksByUsers(params: RequestSearchByUser, request: Parse.Cloud.FunctionRequest): Promise<SearchResultInterface> {
+    async _searchTracksByUsers(params: RequestSearchByUser, request: Parse.Cloud.FunctionRequest): Promise<SearchResultInterface<TrackInterface>> {
         const result = await SoundCloud.tracksByUser(params.userId, params.term, params.limit, params.offset).then((data) => {
             return data;
         }).catch(err => {
@@ -125,7 +126,7 @@ export class SoundCloudFunction extends CloudFunctionBase {
     }
 
     @CloudFunctionBase.validateRequestParam(RequestSearchByUser)
-    async _searchPlaylistsByUsers(params: RequestSearchByUser, request: Parse.Cloud.FunctionRequest): Promise<SearchResultInterface> {
+    async _searchPlaylistsByUsers(params: RequestSearchByUser, request: Parse.Cloud.FunctionRequest): Promise<SearchResultInterface<PlayListInterface>> {
         const result = await SoundCloud.playlistsByUser(params.userId, params.term, params.limit, params.offset).then((data) => {
             return data;
         }).catch(err => {
@@ -135,7 +136,7 @@ export class SoundCloudFunction extends CloudFunctionBase {
     }
 
     @CloudFunctionBase.validateRequestParam(RequestSearchByUser)
-    async _searchAlbumsByUsers(params: RequestSearchByUser, request: Parse.Cloud.FunctionRequest): Promise<SearchResultInterface> {
+    async _searchAlbumsByUsers(params: RequestSearchByUser, request: Parse.Cloud.FunctionRequest): Promise<SearchResultInterface<PlayListInterface>> {
         const result = await SoundCloud.albumsByUser(params.userId, params.term, params.limit, params.offset).then((data) => {
             return data;
         }).catch(err => {
@@ -172,6 +173,36 @@ export class SoundCloudFunction extends CloudFunctionBase {
                     return item.urn.indexOf(type) >= 0;
                 });
             });
+            return data;
+        }).catch(err => {
+            return Promise.reject();
+        });
+        return result;
+    }
+
+    @CloudFunctionBase.validateRequestParam(RequestSearchByTag)
+    async _popularTrackByTag(params: RequestSearchByTag, request: Parse.Cloud.FunctionRequest): Promise<SearchResultInterface<TrackInterface>> {
+        const result = await SoundCloud.popularTrackByTag(params.tag, params.limit, params.offset).then((data) => {
+            return data;
+        }).catch(err => {
+            return Promise.reject();
+        });
+        return result;
+    }
+
+    @CloudFunctionBase.validateRequestParam(RequestSearchByTag)
+    async _playlistByTag(params: RequestSearchByTag, request: Parse.Cloud.FunctionRequest): Promise<SearchResultInterface<PlayListInterface>> {
+        const result = await SoundCloud.playlistByTag(params.tag, params.limit, params.offset).then((data) => {
+            return data;
+        }).catch(err => {
+            return Promise.reject();
+        });
+        return result;
+    }
+
+    @CloudFunctionBase.validateRequestParam(RequestSearchByTag)
+    async _userByTag(params: RequestSearchByTag, request: Parse.Cloud.FunctionRequest): Promise<SearchResultInterface<UserInterface>> {
+        const result = await SoundCloud.userByTag(params.tag, params.limit, params.offset).then((data) => {
             return data;
         }).catch(err => {
             return Promise.reject();

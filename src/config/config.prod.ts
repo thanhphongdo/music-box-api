@@ -31,5 +31,5 @@ export var Config: ConfigInterface = {
     ],
     dashboardUrl: '/-board',
     addDocs: false,
-    soundCloudClienId: 'p0qXnO6vGPGnUE8mStvEVVelga3zO3sy'
+    soundCloudClienId: 'atcX6KFaz2y3iq7fJayIK779Hr4oGArb'
 }

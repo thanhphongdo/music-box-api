@@ -12,5 +12,5 @@ export var Config:ConfigInterface = {
         port: 1337,
         serverURL: 'http://localhost:1337'
     },
-    soundCloudClienId: 'p0qXnO6vGPGnUE8mStvEVVelga3zO3sy'
+    soundCloudClienId: 'atcX6KFaz2y3iq7fJayIK779Hr4oGArb'
 }

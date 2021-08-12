@@ -48,8 +48,7 @@ export class LibraryFunction extends CloudFunctionBase {
 		let recentlyQuery = new ParseQueryBase(RecentlyPlayed);
 		
 		const startDay = new Date().setUTCHours(0,0,0,0);
-		const endDay = new Date().setUTCHours(23,59,59,999);
-		const today = new Date(startDay)
+		const today = new Date()
 		const last30days = new Date().setDate(today.getDate()-30)
 		const last7days = new Date().setDate(today.getDate()-7)
 		const lastday = new Date().setDate(today.getDate()-1)
@@ -59,17 +58,28 @@ export class LibraryFunction extends CloudFunctionBase {
 		recentlyQuery.lessThanOrEqualTo('playedAt', today)
 
 		let dataLast30days = await recentlyQuery.greaterThanOrEqualTo('playedAt',new Date(last30days)).findAsync<RecentlyPlayed>({ useMasterKey: true });
-		let dataLast7days = await recentlyQuery.greaterThanOrEqualTo('playedAt',new Date(last7days)).findAsync<RecentlyPlayed>({ useMasterKey: true });
-		let dataLastday = await recentlyQuery.greaterThanOrEqualTo('playedAt',new Date(lastday)).findAsync<RecentlyPlayed>({ useMasterKey: true });	
-		let dataToday = await recentlyQuery.lessThanOrEqualTo('playedAt', new Date(endDay)).findAsync<RecentlyPlayed>({ useMasterKey: true });
+		let dataLast7days: Array<RecentlyPlayed> = [];
+		let dataLastday: Array<RecentlyPlayed> = []
+		let dataToday: Array<RecentlyPlayed> = [];
 
+		dataLast30days.forEach(data => {
+			if(data.playedAt > new Date(last7days)){
+				dataLast7days.push(data)	
+			}
+			if(data.playedAt > new Date(lastday)) {
+				dataLastday.push(data)
+			}
+			if(data.playedAt >= new Date(startDay)) {
+				dataToday.push(data)
+			}
+		})
+ 
 		let data = {
 			"last30days": dataLast30days,
 			"last7days": dataLast7days,
 			"lastday": dataLastday,
 			"today": dataToday
 		}
-
 		return data
 	}
 }

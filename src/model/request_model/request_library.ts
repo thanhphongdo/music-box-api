@@ -7,10 +7,6 @@ export class RequestRecently extends BaseModel {
     @IsString()
     id!: string;
 
-	@IsNotEmpty()
-    @IsString()
-    playedAt!: Date;
-
     @IsNotEmpty()
     @IsNumber()
     type!: number;

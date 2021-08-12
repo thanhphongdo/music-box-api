@@ -11,20 +11,30 @@ export class LibraryFunction extends CloudFunctionBase {
 
 	@CloudFunctionBase.validateRequestAuth()
 	@CloudFunctionBase.validateRequestParam(RequestRecently)
-	async saveRecentlyPlayed(params: RequestRecently, request: Parse.Cloud.FunctionRequest): Promise<any> {
+	async saveRecentlyPlayed(params: RequestRecently, request: Parse.Cloud.FunctionRequest) {
 		const recentlyPlayed = new RecentlyPlayed();
-		const query = await new ParseQueryBase(RecentlyPlayed).equalTo('itemId', params.id).firstAsync<RecentlyPlayed>({ useMasterKey: true });
-		if (query) {
+		const user = request.user!;
+		const query = await new ParseQueryBase(RecentlyPlayed);
+		query.equalTo('itemId', params.id);
+		query.equalTo('user', user)
+		const result = await query.firstAsync<RecentlyPlayed>({ useMasterKey: true });
+
+		if (result) {
 			const user = request.user!;
-			const q = await new ParseQueryBase(RecentlyPlayed).equalTo('user', user).firstAsync<RecentlyPlayed>({ useMasterKey: true });
-			if (q) {
-				query.set("playedAt", params.playedAt)
-				return await query.saveAsync<RecentlyPlayed>(null, { useMasterKey: true });
+			if (result.user.id === user.id) {
+				result.set("playedAt", new Date())
+				return await result.saveAsync<RecentlyPlayed>(null, { useMasterKey: true });
+			} else {
+				recentlyPlayed.itemId = params.id as any;
+				recentlyPlayed.playedAt = new Date();
+				recentlyPlayed.type = params.type as any;
+				recentlyPlayed.detailInfo = params.detailInfo as any;
+				recentlyPlayed.user = request.user as any;
+				return await recentlyPlayed.saveAsync<RecentlyPlayed>(null, { useMasterKey: true });
 			}
-		}
-		else {
+		} else {
 			recentlyPlayed.itemId = params.id as any;
-			recentlyPlayed.playedAt = params.playedAt as any;
+			recentlyPlayed.playedAt = new Date();
 			recentlyPlayed.type = params.type as any;
 			recentlyPlayed.detailInfo = params.detailInfo as any;
 			recentlyPlayed.user = request.user as any;
@@ -34,20 +44,33 @@ export class LibraryFunction extends CloudFunctionBase {
 
 	@CloudFunctionBase.validateRequestAuth()
 	@CloudFunctionBase.validateRequestParam(RequestListRecently)
-	async listRecentlyPlayed(params: RequestListRecently, request: Parse.Cloud.FunctionRequest): Promise<ResponseListBase<RecentlyPlayed>> {
+	async listRecentlyPlayed(params: RequestListRecently, request: Parse.Cloud.FunctionRequest) {
 		let recentlyQuery = new ParseQueryBase(RecentlyPlayed);
-		params.perPage = params.perPage || 10;
-		params.page = params.page || 1;
-		if (params.perPage > 10000) {
-			throw new Parse.Error(400, 'Per Page limit 10000');
-		}
-		recentlyQuery.limit(params.perPage);
-		recentlyQuery.skip(params.perPage * (params.page - 1));
-		recentlyQuery.equalTo('user', request.user)
-		let data = await recentlyQuery.findAsync<RecentlyPlayed>({ useMasterKey: true });
+		
+		const startDay = new Date().setUTCHours(0,0,0,0);
+		const endDay = new Date().setUTCHours(23,59,59,999);
+		const today = new Date(startDay)
+		const last30days = new Date().setDate(today.getDate()-30)
+		const last7days = new Date().setDate(today.getDate()-7)
+		const lastday = new Date().setDate(today.getDate()-1)
 
-		return new ResponseListBase<RecentlyPlayed>(1, 10, 0, data);
+		recentlyQuery.limit(10000);
+		recentlyQuery.equalTo('user', request.user)
+		recentlyQuery.lessThanOrEqualTo('playedAt', today)
+
+		let dataLast30days = await recentlyQuery.greaterThanOrEqualTo('playedAt',new Date(last30days)).findAsync<RecentlyPlayed>({ useMasterKey: true });
+		let dataLast7days = await recentlyQuery.greaterThanOrEqualTo('playedAt',new Date(last7days)).findAsync<RecentlyPlayed>({ useMasterKey: true });
+		let dataLastday = await recentlyQuery.greaterThanOrEqualTo('playedAt',new Date(lastday)).findAsync<RecentlyPlayed>({ useMasterKey: true });	
+		let dataToday = await recentlyQuery.lessThanOrEqualTo('playedAt', new Date(endDay)).findAsync<RecentlyPlayed>({ useMasterKey: true });
+
+		let data = {
+			"last30days": dataLast30days,
+			"last7days": dataLast7days,
+			"lastday": dataLastday,
+			"today": dataToday
+		}
+
+		return data
 	}
 }
-
 

@@ -30,6 +30,28 @@ export class RequestUserSignUp extends BaseModel {
     sex!: 0 | 1 | 2;
 }
 
+export class RequestUserUpdate extends BaseModel {
+    @IsString()
+    @MinLength(6)
+    @MaxLength(20)
+    username!: string;
+
+    @IsDateString()
+    @IsNotEmpty()
+    birthDate!: string;
+
+    @IsNumber()
+    @IsNotEmpty()
+    sex!: 0 | 1 | 2;
+}
+
+export class RequestUpdatePasswordUser extends BaseModel {
+    @IsString()
+    @MinLength(8)
+    @MaxLength(20)
+    password!: string;
+}
+
 export class RequestUserDetail extends BaseModel {
     @IsNotEmpty()
     userId!: string;

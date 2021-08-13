@@ -29,6 +29,14 @@ export class User extends Parse.User {
 		}
 	}
 
+	get username(): string {
+		return this.get('username');
+	}
+
+	set username(value: string) {
+		this.set('username', value);
+	}
+
 	get firstName(): string {
 		return this.get('firstName');
 	}
@@ -45,12 +53,12 @@ export class User extends Parse.User {
 		this.set('lastName', value);
 	}
 
-	get birthDate(): Date {
+	get birthDate(): string {
 		return this.get('birthDate');
 	}
 
-	set birthDate(value: Date) {
-		this.set('birthDate', new Date(value));
+	set birthDate(value: string) {
+		this.set('birthDate', value);
 	}
 
 	get sex(): number {

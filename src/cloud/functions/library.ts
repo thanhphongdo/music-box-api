@@ -48,10 +48,11 @@ export class LibraryFunction extends CloudFunctionBase {
 		let recentlyQuery = new ParseQueryBase(RecentlyPlayed);
 		
 		const startDay = new Date().setUTCHours(0,0,0,0);
-		const today = new Date()
-		const last30days = new Date().setDate(today.getDate()-30)
-		const last7days = new Date().setDate(today.getDate()-7)
-		const lastday = new Date().setDate(today.getDate()-1)
+		const endDay = new Date().setUTCHours(23, 59, 59, 999);
+		const today = new Date(endDay);
+		const last30days = new Date().setDate(today.getDate()-30);
+		const last7days = new Date(new Date().setDate(new Date(startDay).getDate() - 7)).setUTCHours(0, 0, 0, 0);
+		const lastday = new Date(new Date().setDate(new Date(startDay).getDate() - 1)).setUTCHours(0, 0, 0, 0);
 
 		recentlyQuery.limit(10000);
 		recentlyQuery.equalTo('user', request.user)
@@ -63,10 +64,10 @@ export class LibraryFunction extends CloudFunctionBase {
 		let dataToday: Array<RecentlyPlayed> = [];
 
 		dataLast30days.forEach(data => {
-			if(data.playedAt > new Date(last7days)){
+			if(data.playedAt >= new Date(last7days) && data.playedAt < new Date(startDay)){
 				dataLast7days.push(data)	
 			}
-			if(data.playedAt > new Date(lastday)) {
+			if(data.playedAt >= new Date(lastday) && data.playedAt < new Date(startDay)) {
 				dataLastday.push(data)
 			}
 			if(data.playedAt >= new Date(startDay)) {

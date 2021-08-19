@@ -1,5 +1,5 @@
 import { CloudFunctionBase } from '../../parse/index';
-import { RequestCreatePlaylist, PlayList, TrackInterface, RequestGetPlaylistById, RequestAddToPlaylist, RequestUpdatePlaylist } from '../../model/index';
+import { RequestCreatePlaylist, PlayList, TrackInterface, ResponseListBase, RequestGetPlaylistById, RequestAddToPlaylist, RequestUpdatePlaylist, RequestListMyPlaylist } from '../../model/index';
 import { ParseQueryBase } from '../../parse';
 
 export class PlaylistFunction extends CloudFunctionBase {
@@ -17,7 +17,7 @@ export class PlaylistFunction extends CloudFunctionBase {
 	@CloudFunctionBase.validateRequestParam(RequestCreatePlaylist)
 	async savePlaylist(params: RequestCreatePlaylist, request: Parse.Cloud.FunctionRequest) {
 		const playlist = new PlayList();
-		
+
 		let tracks: Array<TrackInterface> = [];
 		playlist.title = params.title as any;
 		playlist.description = params.description as any;
@@ -49,28 +49,36 @@ export class PlaylistFunction extends CloudFunctionBase {
 	}
 
 	@CloudFunctionBase.validateRequestAuth()
-	async getMyPlaylist(params: null, request: Parse.Cloud.FunctionRequest) {
+	@CloudFunctionBase.validateRequestParam(RequestListMyPlaylist)
+	async getMyPlaylist(params: RequestListMyPlaylist, request: Parse.Cloud.FunctionRequest): Promise<ResponseListBase<PlayList>> {
 		const playlistQuery = new ParseQueryBase(PlayList);
-		
-		playlistQuery.limit(10000);
+
+		params.perPage = params.perPage || 30;
+		params.page = params.page || 1;
+		if (params.perPage > 10000) {
+			throw new Parse.Error(400, 'Per Page limit 10000');
+		}
+		playlistQuery.limit(params.perPage);
+		playlistQuery.skip(params.perPage * (params.page - 1));
+
 		playlistQuery.equalTo('user', request.user)
 
 		let data = await playlistQuery.findAsync<PlayList>({ useMasterKey: true });
-		if(!data) throw this.throwObjectNotFound();
+		if (!data) throw this.throwObjectNotFound();
 
-		return data
+		return new ResponseListBase<PlayList>(1, 30, 0, data);
 	}
 
 	@CloudFunctionBase.validateRequestAuth()
 	@CloudFunctionBase.validateRequestParam(RequestGetPlaylistById)
 	async getMyPlaylistById(params: RequestGetPlaylistById, request: Parse.Cloud.FunctionRequest) {
 		const playlistQuery = new ParseQueryBase(PlayList);
-		
+
 		playlistQuery.equalTo('objectId', params.id);
-		playlistQuery.equalTo('user', request.user)
+		playlistQuery.equalTo('user', request.user);
 
 		let data = await playlistQuery.firstAsync<PlayList>({ useMasterKey: true });
-		if(!data) throw this.throwObjectNotFound();
+		if (!data) throw this.throwObjectNotFound();
 
 		return data
 	}
@@ -79,19 +87,19 @@ export class PlaylistFunction extends CloudFunctionBase {
 	@CloudFunctionBase.validateRequestParam(RequestAddToPlaylist)
 	async addToPlaylist(params: RequestAddToPlaylist, request: Parse.Cloud.FunctionRequest) {
 		const playlistQuery = new ParseQueryBase(PlayList);
-		
+
 		playlistQuery.equalTo('objectId', params.playlistId);
 		playlistQuery.equalTo('user', request.user)
 
-		const result = await playlistQuery.firstAsync<PlayList>({ useMasterKey:true })
-		if(result) {
+		const result = await playlistQuery.firstAsync<PlayList>({ useMasterKey: true })
+		if (result) {
 			let isExist = false;
 			result.tracks.forEach(track => {
-				if(track.id === params.trackId) {
+				if (track.id === params.trackId) {
 					isExist = true;
 				}
 			})
-			if(!isExist) {
+			if (!isExist) {
 				result.tracks.push(params.track)
 				result.duration += params.duration
 				return await result.saveAsync<PlayList>(null, { useMasterKey: true });
@@ -103,16 +111,16 @@ export class PlaylistFunction extends CloudFunctionBase {
 	@CloudFunctionBase.validateRequestAuth()
 	async deleteTrackInPlaylist(params: any, request: Parse.Cloud.FunctionRequest) {
 		const playlistQuery = new ParseQueryBase(PlayList);
-		
+
 		playlistQuery.equalTo('objectId', params.id);
 		playlistQuery.equalTo('user', request.user)
 
-		const result = await playlistQuery.firstAsync<PlayList>({ useMasterKey:true })
-		if(result) {
+		const result = await playlistQuery.firstAsync<PlayList>({ useMasterKey: true })
+		if (result) {
 			result.tracks.forEach(track => {
-				if(track.id === params.trackId) {
+				if (track.id === params.trackId) {
 					result.remove('tracks', track)
-				}	
+				}
 			})
 			return result.saveAsync<PlayList>(null, { useMasterKey: true })
 		}

@@ -43,3 +43,4 @@ export class RequestAddToPlaylist extends BaseModel {
     @IsNotEmpty()
     track!: TrackInterface;
 }
+
